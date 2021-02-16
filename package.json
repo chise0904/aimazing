@@ -1,0 +1,35 @@
+{
+    "name": "aimazing",
+    "version": "1.0.0",
+    "description": "# ER diagram ER diagram.png",
+    "main": "index.js",
+    "directories": {
+      "test": "test"
+    },
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/chise0904/aimazing.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/chise0904/aimazing/issues"
+    },
+    "homepage": "https://github.com/chise0904/aimazing#readme",
+    "dependencies": {
+      "body-parser": "^1.19.0",
+      "chai": "^4.3.0",
+      "chai-http": "^4.3.0",
+      "express": "^4.17.1",
+      "express-session": "^1.17.1",
+      "pg": "^8.5.1",
+      "pg-format": "^1.0.4",
+      "pg-promise": "^10.9.2",
+      "session-file-store": "^1.5.0",
+      "swagger-jsdoc": "^6.0.6",
+      "swagger-ui-express": "^4.1.6"
+    }
+  }
