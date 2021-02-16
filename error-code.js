@@ -1,0 +1,9 @@
+
+module.exports = {
+
+    00000: "OK",
+    10001: "EITHER USER OR PASSWORD IS WRONG",
+    10002: "WRONG PARAMETER(s)",
+    10003: "NOT LOGIN YET",
+    10004: "DB ISSUE"
+}
