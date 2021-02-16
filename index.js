@@ -66,12 +66,6 @@ function checkUserAuth(name, password) {
 }
 
 
- /**
- * @swagger
- * /:
- *   get:
- *     summary: test whether server is ok
- */
 app.get('/', function (req, resp, next) {
 
     resp.json({ suceess: true});
@@ -79,9 +73,55 @@ app.get('/', function (req, resp, next) {
 
  /**
  * @swagger
+ * definitions:
+ *  login:
+ *    type: object
+ *    properties:
+ *      username:
+ *        type: string
+ *        description: user's name
+ *      password:
+ *        type: string
+ *        description: user's password
+ * 
+ *  loginreturn:
+ *    type: object
+ *    properties:
+ *      success:
+ *        type: boolean
+ * 
+ *  loginerrorreturn:
+ *    type: object
+ *    properties:
+ *      code:
+ *        type: integer
+ *      msg:
+ *        type: string
+ *      details:
+ *        type: string
+ * 
+ * 
  * /login:
  *   post:
- *     summary: log in to access db
+ *      description: log in to retrieve sessionid
+ *      parameters:
+ *      - name: ""
+ *        type: object
+ *        in: body
+ *        required: true
+ *        schema: 
+ *          $ref: '#/definitions/login'
+ *      responses:
+ *        200:
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/definitions/loginreturn'
+ *        403:
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/definitions/loginerrorreturn'
  */
 app.post('/login', function (req, resp, next) {
 
@@ -106,9 +146,38 @@ app.post('/login', function (req, resp, next) {
 
  /**
  * @swagger
- * /login:
+ * definitions: 
+ *  logoutreturn:
+ *    type: object
+ *    properties:
+ *      success:
+ *        type: boolean
+ * 
+ *  logouterrorreturn:
+ *    type: object
+ *    properties:
+ *      code:
+ *        type: integer
+ *      msg:
+ *        type: string
+ *      details:
+ *        type: string
+ * 
+ * 
+ * /logout:
  *   get:
- *     summary: log out from server
+ *      description: log in to retrieve sessionid
+ *      responses:
+ *        200:
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/definitions/logoutreturn'
+ *        403:
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/definitions/logouterrorreturn'
  */
 app.get('/logout', function (req, resp, next) {
 
@@ -120,7 +189,7 @@ app.get('/logout', function (req, resp, next) {
 
         req.session.loginUser = null;
         resp.clearCookie('sessionid');
-        resp.redirect('/login');
+        resp.json({ success: true });
     });
 });
 
