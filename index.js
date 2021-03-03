@@ -6,10 +6,11 @@ const FileStore = require('session-file-store')(session); // TODO: use redis ins
 const app = express();
 const errResp = require('./resp');
 const errCode = require('./error-code');
-const dbc = require('./db')({ dbName: "example", table: "Bob\'s Store" });
+// const dbc = require('./db')({ dbName: "example", table: "Bob\'s Store" });
+const dbc = require('./mysqldb')({ dbName: "example", table: "Bob\'s Store" });
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-
+const grpcServer = require("./grpcServer")
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -65,11 +66,88 @@ function checkUserAuth(name, password) {
     }
 }
 
-
+ /**
+ * @swagger
+ * definitions:
+ *  login:
+ *    type: object
+ *    properties:
+ *      username:
+ *        type: string
+ *        description: user's name
+ *      password:
+ *        type: string
+ *        description: user's password
+ * 
+ *  loginreturn:
+ *    type: object
+ *    properties:
+ *      success:
+ *        type: boolean
+ * 
+ *  loginerrorreturn:
+ *    type: object
+ *    properties:
+ *      code:
+ *        type: integer
+ *      msg:
+ *        type: string
+ *      details:
+ *        type: string
+ * 
+ * 
+ * /:
+ *   post:
+ *      description: root for test description
+ *      summary: root for test summary
+ *      requestBody:
+ *        content:
+ *          application/json:
+ *            schema:      # Request body contents
+ *              type: object
+ *              properties:
+ *                id:
+ *                  type: integer
+ *                name:
+ *                  type: string
+ *            examples:    # Child of media type
+ *              Jessica:   # Example 1
+ *                value:
+ *                  id: 100
+ *                  name: Jessica Smith
+ *              Ron:       # Example 2
+ *                value:
+ *                  id: 11
+ *                  name: Ron Stewart
+ *      responses:
+ *        200:
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/definitions/loginreturn'
+ *        403:
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/definitions/loginerrorreturn'
+ */
 app.get('/', function (req, resp, next) {
 
     resp.json({ suceess: true});
 });
+
+
+app.get('/test', function(req, resp, next){
+
+
+    dbc.test().then((res) => {
+        // console.log(res.rows);
+        resp.json(res);
+    })
+        .catch((error) => {
+            console.log(error);
+        })
+})
 
  /**
  * @swagger
@@ -257,15 +335,15 @@ function checkAuth(req, resp, next) {
  *              schema:
  *                $ref: '#/definitions/return'
  */
-app.post('/receipts', checkAuth, function (req, resp, next) {
+app.post('/receipts', function (req, resp, next) {
 
     dbc.setReceipts(req.body).then((res) => {
-        // console.log(res.rows);
-        resp.json(res.rows);
+        // console.log(res);
+        console.log(res.insertId);
+        // resp.json(res);
+    }).catch((error) => {
+            console.log("/receipts error: ", error);
     })
-        .catch((error) => {
-            console.log(error);
-        })
 });
 
  /**
@@ -302,18 +380,38 @@ app.post('/receipts', checkAuth, function (req, resp, next) {
  *              schema:
  *                $ref: '#/definitions/return2'
  */
-app.put('/receipt/:receiptid', checkAuth, function (req, resp, next) {
+// app.put('/receipt/:receiptid', checkAuth, function (req, resp, next) {
+
+//     const receiptid = req.params.receiptid || "";
+//     const tags = req.body.tags || "";
+
+//     if (!receiptid.length) {
+//         resp.status(400).json(errResp("10002", errCode[10002], "missing receiptid"));
+//     } else {
+//         dbc.updateReceipt({ receiptid: receiptid, tags: tags })
+//             .then((res) => {
+//                 console.log(res.rows);
+//                 resp.json(res.rows);
+//             })
+//             .catch((error) => {
+//                 console.log(error);
+//             })
+//     }
+// });
+
+
+app.put('/receipt/:receiptid', function (req, resp, next) {
 
     const receiptid = req.params.receiptid || "";
-    const tags = req.body.tags || "";
+    const total = req.body.total || 0;
 
     if (!receiptid.length) {
         resp.status(400).json(errResp("10002", errCode[10002], "missing receiptid"));
     } else {
-        dbc.updateReceipt({ receiptid: receiptid, tags: tags })
+        dbc.updateReceipt({ receiptid: receiptid, total: total })
             .then((res) => {
-                console.log(res.rows);
-                resp.json(res.rows);
+                console.log(res);
+                resp.json(res);
             })
             .catch((error) => {
                 console.log(error);
@@ -368,5 +466,6 @@ app.get('/receipts', checkAuth, async function (req, resp, next) {
 
 
 const server = app.listen(3001, () => console.log('listening on port 3001!'))
+grpcServer();
 
 module.exports = server;
