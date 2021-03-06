@@ -63,9 +63,9 @@ http://127.0.0.1:3001/apidoc
     ]
 
 
+# gRPC server
 
-
-
+    client: nodejs_grpc_client project
 
 
 
